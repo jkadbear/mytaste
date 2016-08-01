@@ -1,20 +1,78 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+exist_cmd() {
+	if type $1 >/dev/null 2>&1; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+# detect OS type
+if [[ $(uname) = "Darwin" ]]; then
+	OSTYPE="OSX"
+	if ! exist_cmd brew; then
+		# install Homebrew
+		/usr/bin/ruby -e "$(curl -fsSL https://\
+		raw.githubusercontent.com/Homebrew/install/master/install)"
+	fi
+	INSTALL_PREFIX="brew"
+elif [[ $(cat /etc/issue | head -n 1 | cut -c1-6) == "Ubuntu" ]]; then
+	OSTYPE="Ubuntu"
+	INSTALL_PREFIX="sudo apt-get install -y"
+else
+	echo "Unsupported OS Type!"
+	exit 1
+fi
 
 while true; do
 	echo
 	echo "========================================="
 	echo "What do you want to do? (ENTER q to exit)"
-	echo "1. set SSH login without password"
+	echo "1. copy ssh keys to another machine"
+	echo "2. prepare *nix working environment"
 
 	read sel
 
-	if [[ $sel = 1 ]]; then
-		echo "Please input remote-host:"
+	if [[ "$sel" == "1" ]]; then
+		if [[ "$OSTYPE" == "OSX" ]]; then
+			if ! exist_cmd ssh-copy-id; then
+				$INSTALL_PREFIX ssh-copy-id
+			fi
+		fi
+		echo "Please input remote-host-addr:"
 		read remote_host
+		echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host"
 		ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
-	elif [[ $sel = q ]]; then
-		exit
+	elif [[ "$sel" == "2" ]]; then
+		if ! exist_cmd git; then
+			echo "installing git..."
+			$INSTALL_PREFIX git
+		fi
+		if  ! exist_cmd vim; then
+			echo "installing vim..."
+			$INSTALL_PREFIX vim 
+		fi
+		if  ! exist_cmd zsh; then
+			echo "installing zsh..."
+			$INSTALL_PREFIX zsh 
+		fi
+		if  ! exist_cmd tmux; then
+			echo "installing tmux..."
+			$INSTALL_PREFIX tmux
+		fi
+		cd ~
+		echo "git clone https://git.ustclug.org/jkad/chief_config.git"
+		git clone https://git.ustclug.org/jkad/chief_config.git
+		cd chief_config
+		cp ./zshrc ~/.zshrc
+		cp ./vimperatorrc ~/.vimperatorrc
+		cp ./vimrc ~/.vimrc 
+		cp ./tmux.conf ~/.tmux.conf 
+	elif [[ "$sel" = "q" ]]; then
+		exit 1
 	else
 		echo "illegal input!"
 	fi
 done
+
