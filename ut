@@ -1,0 +1,20 @@
+#!/bin/bash
+
+while true; do
+	echo
+	echo "========================================="
+	echo "What do you want to do? (ENTER q to exit)"
+	echo "1. set SSH login without password"
+
+	read sel
+
+	if [[ $sel = 1 ]]; then
+		echo "Please input remote-host:"
+		read remote_host
+		ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
+	elif [[ $sel = q ]]; then
+		exit
+	else
+		echo "illegal input!"
+	fi
+done
