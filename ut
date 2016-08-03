@@ -57,18 +57,26 @@ while true; do
 			echo "installing zsh..."
 			$INSTALL_PREFIX zsh 
 		fi
+		# install oh-my-zsh
+		if [ ! -d ~/.oh-my-zsh ]; then
+			sh -c "$(wget https://raw.githubusercontent.com/\
+			robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+		fi
 		if  ! exist_cmd tmux; then
 			echo "installing tmux..."
 			$INSTALL_PREFIX tmux
 		fi
-		cd ~
-		echo "git clone https://git.ustclug.org/jkad/chief_config.git"
-		git clone https://git.ustclug.org/jkad/chief_config.git
-		cd chief_config
-		cp ./zshrc ~/.zshrc
-		cp ./vimperatorrc ~/.vimperatorrc
-		cp ./vimrc ~/.vimrc 
-		cp ./tmux.conf ~/.tmux.conf 
+		if [ ! -d ~/chief_config ]; then
+			cd ~
+			echo "git clone https://git.ustclug.org/jkad/chief_config.git"
+			git clone https://git.ustclug.org/jkad/chief_config.git
+			cd chief_config
+			cp ./zshrc ~/.zshrc
+			cp ./vimperatorrc ~/.vimperatorrc
+			cp ./vimrc ~/.vimrc 
+			cp ./tmux.conf ~/.tmux.conf 
+		fi
+		echo "done"
 	elif [[ "$sel" = "q" ]]; then
 		exit 1
 	else
