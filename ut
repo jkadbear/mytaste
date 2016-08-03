@@ -6,12 +6,12 @@ NC='\033[0m' # No Color
 
 # prompt successful message
 echo_succ() {
-	printf "${GREEN}*$1*\n${NC}"
+	echo -e "${GREEN}*$1*${NC}"
 }
 
 # prompt failed message
 echo_fail() {
-	printf "${RED}*$1*\n${NC}"
+	echo -e "${RED}*$1*${NC}"
 }
 
 exist_cmd() {
@@ -49,10 +49,8 @@ while true; do
 	read sel
 
 	if [[ "$sel" == "1" ]]; then
-		if [[ "$OSTYPE" == "OSX" ]]; then
-			if ! exist_cmd ssh-copy-id; then
-				$INSTALL_PREFIX ssh-copy-id
-			fi
+		if [[ "$OSTYPE" == "OSX" ]] && ! exist_cmd ssh-copy-id; then
+			$INSTALL_PREFIX ssh-copy-id
 		fi
 		echo "Please input remote-host-addr:"
 		read remote_host
@@ -75,7 +73,7 @@ while true; do
 			$INSTALL_PREFIX zsh 
 		fi
 		# install oh-my-zsh
-		if [ ! -d ~/.oh-my-zsh ]; then
+		if [[ ! -d ~/.oh-my-zsh ]]; then
 			sh -c "$(wget https://raw.githubusercontent.com/\
 			robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 		fi
@@ -85,10 +83,15 @@ while true; do
 			$INSTALL_PREFIX tmux
 		fi
 		# apply configuration to zsh, vimperatorrc, vim, tmux
-		if [ ! -d ~/chief_config ]; then
+		if [[ ! -d ~/chief_config ]]; then
 			cd ~
-			echo "git clone https://git.ustclug.org/jkad/chief_config.git"
-			git clone https://git.ustclug.org/jkad/chief_config.git
+			if [[ $OSTYPE == "Ubuntu" ]]; then
+				echo "git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git"
+				git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git
+			else
+				echo "git clone https://git.ustclug.org/jkad/chief_config.git"
+				git clone https://git.ustclug.org/jkad/chief_config.git
+			fi
 			cd chief_config
 			cp ./zshrc ~/.zshrc
 			cp ./vimperatorrc ~/.vimperatorrc
@@ -96,7 +99,7 @@ while true; do
 			cp ./tmux.conf ~/.tmux.conf 
 		fi
 		echo_succ "Successfully done"
-	elif [[ "$sel" = "q" ]]; then
+	elif [[ "$sel" == "q" ]]; then
 		exit 1
 	else
 		echo_fail "Illegal input!"
