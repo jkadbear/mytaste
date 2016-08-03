@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# prompt successful message
+echo_succ() {
+	printf "${GREEN}*$1*\n${NC}"
+}
+
+# prompt failed message
+echo_fail() {
+	printf "${RED}*$1*\n${NC}"
+}
+
 exist_cmd() {
 	if type $1 >/dev/null 2>&1; then
 		return 0
@@ -21,7 +35,7 @@ elif [[ $(cat /etc/issue | head -n 1 | cut -c1-6) == "Ubuntu" ]]; then
 	OSTYPE="Ubuntu"
 	INSTALL_PREFIX="sudo apt-get install -y"
 else
-	echo "Unsupported OS Type!"
+	echo_fail "Unsupported OS Type!"
 	exit 1
 fi
 
@@ -45,14 +59,17 @@ while true; do
 		echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host"
 		ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
 	elif [[ "$sel" == "2" ]]; then
+		# install git
 		if ! exist_cmd git; then
 			echo "installing git..."
 			$INSTALL_PREFIX git
 		fi
+		# install vim
 		if  ! exist_cmd vim; then
 			echo "installing vim..."
 			$INSTALL_PREFIX vim 
 		fi
+		# install z-shell
 		if  ! exist_cmd zsh; then
 			echo "installing zsh..."
 			$INSTALL_PREFIX zsh 
@@ -62,10 +79,12 @@ while true; do
 			sh -c "$(wget https://raw.githubusercontent.com/\
 			robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 		fi
+		# install Tmux
 		if  ! exist_cmd tmux; then
 			echo "installing tmux..."
 			$INSTALL_PREFIX tmux
 		fi
+		# apply configuration to zsh, vimperatorrc, vim, tmux
 		if [ ! -d ~/chief_config ]; then
 			cd ~
 			echo "git clone https://git.ustclug.org/jkad/chief_config.git"
@@ -76,11 +95,11 @@ while true; do
 			cp ./vimrc ~/.vimrc 
 			cp ./tmux.conf ~/.tmux.conf 
 		fi
-		echo "done"
+		echo_succ "Successfully done"
 	elif [[ "$sel" = "q" ]]; then
 		exit 1
 	else
-		echo "illegal input!"
+		echo_fail "Illegal input!"
 	fi
 done
 
