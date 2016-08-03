@@ -40,10 +40,11 @@ fi
 
 while true; do
 	echo
-	echo "========================================="
+	echo "=============================================="
 	echo "What do you want to do? (ENTER q to exit)"
 	echo "1. copy ssh keys to another machine"
 	echo "2. prepare *nix working environment"
+	echo "3. prepare *nix working environment(on server)"
 
 	read sel
 
@@ -55,7 +56,7 @@ while true; do
 		read remote_host
 		echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host"
 		ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
-	elif [[ "$sel" == "2" ]]; then
+	elif [[ "$sel" == "2" || "$sel" == "3" ]]; then
 		# install git
 		if ! exist_cmd git; then
 			echo "installing git..."
@@ -84,8 +85,13 @@ while true; do
 		if [[ ! -d ~/chief_config ]]; then
 			cd ~
 			if [[ $OSTYPE == "Ubuntu" ]]; then
-				echo "git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git"
-				git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git
+				if [[ $sel == "3" ]]; then
+					echo "git clone -b ubuntu-server https://git.ustclug.org/jkad/chief_config.git"
+					git clone -b ubuntu-server https://git.ustclug.org/jkad/chief_config.git
+				else
+					echo "git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git"
+					git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git
+				fi
 			else
 				echo "git clone https://git.ustclug.org/jkad/chief_config.git"
 				git clone https://git.ustclug.org/jkad/chief_config.git
