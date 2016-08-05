@@ -74,7 +74,11 @@ while true; do
 		fi
 		# install oh-my-zsh
 		if [[ ! -d ~/.oh-my-zsh ]]; then
-			sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+			wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+			# do not get into zsh environment instantly
+			sed -i.bak '/env zsh/d' install.sh
+			sh install.sh
+			rm install.sh install.sh.bak
 		fi
 		# install Tmux
 		if  ! exist_cmd tmux; then
@@ -86,14 +90,11 @@ while true; do
 			cd ~
 			if [[ $OSTYPE == "Ubuntu" ]]; then
 				if [[ $sel == "3" ]]; then
-					echo "git clone -b ubuntu-server https://git.ustclug.org/jkad/chief_config.git"
 					git clone -b ubuntu-server https://git.ustclug.org/jkad/chief_config.git
 				else
-					echo "git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git"
 					git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git
 				fi
 			else
-				echo "git clone https://git.ustclug.org/jkad/chief_config.git"
 				git clone https://git.ustclug.org/jkad/chief_config.git
 			fi
 			cd chief_config
@@ -103,6 +104,7 @@ while true; do
 			cp ./tmux.conf ~/.tmux.conf 
 		fi
 		echo_succ "Successfully done"
+		echo_succ "try 'chsh -s /bin/zsh' and 'env zsh'"
 	elif [[ "$sel" == "q" ]]; then
 		exit 1
 	else
