@@ -2,6 +2,7 @@
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # prompt successful message
@@ -12,6 +13,11 @@ echo_succ() {
 # prompt failed message
 echo_fail() {
 	echo -e "${RED}*$1*${NC}"
+}
+
+# prompt info message
+echo_info() {
+	echo -e "${YELLOW}*$1*${NC}"
 }
 
 exist_cmd() {
@@ -49,12 +55,27 @@ while true; do
 	read sel
 
 	if [[ "$sel" == "1" ]]; then
+		if [[ ! -e ~/.ssh/id_rsa ]]; then
+			echo_info "No ssh key detected."
+			while true; do
+				read -p "Auto-generate? [y/n]" yn
+				case $yn in
+					[Yy]* ) ssh-keygen -t rsa -P ""; break;;
+					[Nn]* ) echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
+							echo_info " or \`ssh-keygen -t rsa -b 4096 -C \"your-email\"\`";
+							exit;;
+					* )		echo "Please answer y or n.";;
+				esac
+			done
+		fi
 		if [[ "$OSTYPE" == "OSX" ]] && ! exist_cmd ssh-copy-id; then
 			$INSTALL_PREFIX ssh-copy-id
 		fi
+		echo "Please input username(default: localname):"
+		read username
 		echo "Please input remote-host-addr:"
 		read remote_host
-		echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host"
+		echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host"
 		ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
 	elif [[ "$sel" == "2" || "$sel" == "3" ]]; then
 		# install git
