@@ -60,8 +60,8 @@ while true; do
 			while true; do
 				read -p "Auto-generate? [y/n]" yn
 				case $yn in
-					[Yy]* ) ssh-keygen -t rsa -P ""; break;;
-					[Nn]* ) echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
+					[Yy]* )	ssh-keygen -t rsa -P ""; break;;
+					[Nn]* )	echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
 							echo_info " or \`ssh-keygen -t rsa -b 4096 -C \"your-email\"\`";
 							exit;;
 					* )		echo "Please answer y or n.";;
@@ -96,7 +96,7 @@ while true; do
 		# install oh-my-zsh
 		if [[ ! -d ~/.oh-my-zsh ]]; then
 			wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-			# do not get into zsh environment instantly
+			# do not enter zsh environment instantly
 			sed -i.bak '/env zsh/d' install.sh
 			sh install.sh
 			rm install.sh install.sh.bak
