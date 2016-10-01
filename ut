@@ -22,33 +22,18 @@ exist_cmd() {
 	fi
 }
 
-# detect OS type
-if [[ $(uname) = "Darwin" ]]; then
-	OSTYPE="OSX"
-	if ! exist_cmd brew; then
-		# install Homebrew
-		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	fi
-	INSTALL_PREFIX="brew"
-elif [[ $(cat /etc/issue | head -n 1 | cut -c1-6) == "Ubuntu" ]]; then
-	OSTYPE="Ubuntu"
-	INSTALL_PREFIX="sudo apt-get install -y"
-else
-	echo_fail "Unsupported OS Type!"
-	exit 1
-fi
-
-while true; do
+prompt() {
 	echo
 	echo "=============================================="
 	echo "What do you want to do? (ENTER q to exit)"
 	echo "1. copy ssh keys to another machine"
 	echo "2. prepare *nix working environment"
 	echo "3. prepare *nix working environment(on server)"
+	echo "4. back-up files"
+}
 
-	read sel
-
-	if [[ "$sel" == "1" ]]; then
+run_sel() {
+	if [[ $1 == "1" ]]; then
 		if [[ "$OSTYPE" == "OSX" ]] && ! exist_cmd ssh-copy-id; then
 			$INSTALL_PREFIX ssh-copy-id
 		fi
@@ -56,7 +41,7 @@ while true; do
 		read remote_host
 		echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host"
 		ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
-	elif [[ "$sel" == "2" || "$sel" == "3" ]]; then
+	elif [[ $1 == "2" || $1 == "3" ]]; then
 		# install git
 		if ! exist_cmd git; then
 			echo "installing git..."
@@ -105,10 +90,42 @@ while true; do
 		fi
 		echo_succ "Successfully done"
 		echo_succ "try 'chsh -s /bin/zsh' and 'env zsh'"
-	elif [[ "$sel" == "q" ]]; then
+	elif [[ $1 == "q" ]]; then
 		exit 1
+	elif [[ $1 == "4" ]]; then
+		echo "[DEFAULT]: zsh ~/.mytaste/backup.sh (continue? [y/n])"
+		read cho
+		if [[ $cho == "y" || $cho == "" ]]; then
+			zsh ~/.mytaste/backup.sh
+		fi
 	else
 		echo_fail "Illegal input!"
 	fi
-done
+}
+
+# detect OS type
+if [[ $(uname) = "Darwin" ]]; then
+	OSTYPE="OSX"
+	if ! exist_cmd brew; then
+		# install Homebrew
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	fi
+	INSTALL_PREFIX="brew"
+elif [[ $(cat /etc/issue | head -n 1 | cut -c1-6) == "Ubuntu" ]]; then
+	OSTYPE="Ubuntu"
+	INSTALL_PREFIX="sudo apt-get install -y"
+else
+	echo_fail "Unsupported OS Type!"
+	exit 1
+fi
+
+if [[ $# > 0 && $first == true ]]; then
+	run_sel $1
+else
+	while true; do
+		prompt
+		read sel
+		run_sel $sel
+	done
+fi
 
