@@ -38,11 +38,8 @@ prompt() {
     echo "4. back-up files"
 }
 
-<<<<<<< HEAD
-=======
 run_sel() {
     if [[ $1 == "1" ]]; then
->>>>>>> temp
         if [[ ! -e ~/.ssh/id_rsa ]]; then
             echo_info "No ssh key detected."
             while true; do
@@ -61,6 +58,7 @@ run_sel() {
         fi
         echo "Please input username(default: localname):"
         read username
+        username=${username:-`whoami`}
         echo "Please input remote-host-addr:"
         read remote_host
         echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host"
@@ -113,11 +111,11 @@ run_sel() {
             cp ./tmux.conf ~/.tmux.conf 
         fi
         echo_succ "Successfully done"
-        echo_succ "try 'chsh -s /bin/zsh' and 'env zsh'"
+        echo_info "Try 'chsh -s /bin/zsh' and 'env zsh'"
     elif [[ $1 == "q" ]]; then
         exit 1
     elif [[ $1 == "4" ]]; then
-        echo "[DEFAULT]: zsh ~/.mytaste/backup.sh (continue? [y/n])"
+        echo_info "[DEFAULT]: zsh ~/.mytaste/backup.sh (continue? [y/n])"
         read cho
         if [[ $cho == "y" || $cho == "Y" || $cho == "" ]]; then
             zsh ~/.mytaste/backup.sh
@@ -143,7 +141,7 @@ else
     exit 1
 fi
 
-if [[ $# > 0 && $first == true ]]; then
+if [[ $# > 0 ]]; then
     run_sel $1
 else
     while true; do
@@ -152,4 +150,3 @@ else
         run_sel $sel
     done
 fi
-
