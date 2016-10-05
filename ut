@@ -114,7 +114,7 @@ run_sel() {
                     git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git .chief_config
                 fi
             else
-                git clone https://git.ustclug.org/jkad/chief_config.git
+                git clone https://git.ustclug.org/jkad/chief_config.git .chief_config
             fi
             cd chief_config
             cp ./zshrc ~/.zshrc
@@ -123,7 +123,7 @@ run_sel() {
             cp ./tmux.conf ~/.tmux.conf 
             cd $OLDPWD
         else
-            echo_info "~/chief_config is already existed"
+            echo_info "~/.chief_config is already existed"
         fi
         echo_succ "Successfully done"
         echo_info "Try 'chsh -s /bin/zsh' and 'env zsh'"
