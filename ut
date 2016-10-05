@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 # prompt successful message
@@ -28,7 +28,7 @@ exist_cmd() {
     fi
 }
 
-prompt() {
+prompt_help() {
     echo
     echo "=============================================="
     echo "What do you want to do? (ENTER q to exit)"
@@ -36,6 +36,8 @@ prompt() {
     echo "2. prepare *nix working environment"
     echo "3. prepare *nix working environment(on server)"
     echo "4. back-up files"
+    echo "5. update ut itself"
+    echo -n "INPUT>> "
 }
 
 run_sel() {
@@ -49,35 +51,41 @@ run_sel() {
                     [Nn]* ) echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
                             echo_info " or \`ssh-keygen -t rsa -b 4096 -C \"your-email\"\`";
                             exit 0;;
-                    * )     echo "Please answer y or n.";;
+                    * )     echo_info "Please answer y or n.";;
                 esac
             done
         fi
         if [[ "$OSTYPE" == "OSX" ]] && ! exist_cmd ssh-copy-id; then
             $INSTALL_PREFIX ssh-copy-id
         fi
-        echo "Please input username(default: localname):"
+        echo_info "Please input username(default: localname):"
         read username
         username=${username:-`whoami`}
-        echo "Please input remote-host-addr:"
+        echo_info "Please input remote-host-addr:"
         read remote_host
-        echo "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host"
+        echo_info "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host"
         ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
     elif [[ $1 == "2" || $1 == "3" ]]; then
         # install git
         if ! exist_cmd git; then
-            echo "installing git..."
+            echo_info "installing git..."
             $INSTALL_PREFIX git
+        else
+            echo_info "git is already existed"
         fi
         # install vim
         if  ! exist_cmd vim; then
-            echo "installing vim..."
+            echo_info "installing vim..."
             $INSTALL_PREFIX vim 
+        else
+            echo_info "vim is already existed"
         fi
         # install z-shell
         if  ! exist_cmd zsh; then
-            echo "installing zsh..."
+            echo_info "installing zsh..."
             $INSTALL_PREFIX zsh 
+        else
+            echo_info "zshell is already existed"
         fi
         # install oh-my-zsh
         if [[ ! -d ~/.oh-my-zsh ]]; then
@@ -86,17 +94,21 @@ run_sel() {
             sed -i.bak '/env zsh/d' install.sh
             sh install.sh
             rm install.sh install.sh.bak
+        else
+            echo_info "oh-my-zshell is already existed"
         fi
-        # install Tmux
+        # install tmux
         if  ! exist_cmd tmux; then
-            echo "installing tmux..."
+            echo_info "installing tmux..."
             $INSTALL_PREFIX tmux
+        else
+            echo_info "tmux is already existed"
         fi
         # apply configuration to zsh, vimperatorrc, vim, tmux
         if [[ ! -d ~/chief_config ]]; then
             cd ~
             if [[ $OSTYPE == "Ubuntu" ]]; then
-                if [[ $sel == "3" ]]; then
+                if [[ $1 == "3" ]]; then
                     git clone -b ubuntu-server https://git.ustclug.org/jkad/chief_config.git
                 else
                     git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git
@@ -109,17 +121,29 @@ run_sel() {
             cp ./vimperatorrc ~/.vimperatorrc
             cp ./vimrc ~/.vimrc 
             cp ./tmux.conf ~/.tmux.conf 
+        else
+            echo_info "~/chief_config is already existed"
         fi
         echo_succ "Successfully done"
         echo_info "Try 'chsh -s /bin/zsh' and 'env zsh'"
-    elif [[ $1 == "q" ]]; then
-        exit 1
     elif [[ $1 == "4" ]]; then
+        if [[ ! -e ~/.mytaste/backup.sh ]]; then
+            echo_fail "~/.mytaste/backup.sh does not exists!"
+            return
+        fi
         echo_info "[DEFAULT]: zsh ~/.mytaste/backup.sh (continue? [y/n])"
         read cho
         if [[ $cho == "y" || $cho == "Y" || $cho == "" ]]; then
             zsh ~/.mytaste/backup.sh
         fi
+    elif [[ $1 == "5" ]]; then
+        cd ~/.mytaste
+        echo_info "git pull"
+        git pull
+        cd -
+        echo_succ "Update done. Please restart ut."
+    elif [[ $1 == "q" ]]; then
+        exit 1
     else
         echo_fail "Illegal input!"
     fi
@@ -145,7 +169,7 @@ if [[ $# > 0 ]]; then
     run_sel $1
 else
     while true; do
-        prompt
+        prompt_help
         read sel
         run_sel $sel
     done
