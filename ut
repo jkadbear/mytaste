@@ -5,6 +5,10 @@ GREEN='\033[1;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+CONFIG_GITREPO="https://git.ustclug.org/jkadbear/chief_config.git"
+ZSH_INSTALL_SCRIPT=https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+HOMEBREW_INSTALL_SCRIPT=https://raw.githubusercontent.com/Homebrew/install/master/install
+
 # prompt successful message
 echo_succ() {
     echo -e "${GREEN}*$1*${NC}"
@@ -89,7 +93,7 @@ run_sel() {
         fi
         # install oh-my-zsh
         if [[ ! -d ~/.oh-my-zsh ]]; then
-            wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+            wget $ZSH_INSTALL_SCRIPT
             # do not enter zsh environment instantly
             sed -i.bak '/env zsh/d' install.sh
             sh install.sh
@@ -104,19 +108,19 @@ run_sel() {
         else
             echo_info "tmux is already existed"
         fi
-        # apply configuration to zsh, vimperatorrc, vim, tmux
+        # apply configuration to zsh, vimperator, vim, tmux
         if [[ ! -d ~/.chief_config ]]; then
             cd ~
-            if [[ $OSTYPE == "Ubuntu" ]]; then
+            if [[ $OSTYPE == "Ubuntu" ]] || [[ $OSTYPE ==  "AmazonLinux" ]]; then
                 if [[ $1 == "3" ]]; then
-                    git clone -b ubuntu-server https://git.ustclug.org/jkad/chief_config.git .chief_config
+                    git clone -b ubuntu-server $CONFIG_GITREPO .chief_config
                 else
-                    git clone -b ubuntu https://git.ustclug.org/jkad/chief_config.git .chief_config
+                    git clone -b ubuntu $CONFIG_GITREPO .chief_config
                 fi
             else
-                git clone https://git.ustclug.org/jkad/chief_config.git .chief_config
+                git clone $CONFIG_GITREPO .chief_config
             fi
-            cd chief_config
+            cd .chief_config
             cp ./zshrc ~/.zshrc
             cp ./vimperatorrc ~/.vimperatorrc
             cp ./vimrc ~/.vimrc 
@@ -124,6 +128,7 @@ run_sel() {
             cd $OLDPWD
         else
             echo_info "~/.chief_config is already existed"
+            git pull
         fi
         echo_succ "Successfully done"
         echo_info "Try 'chsh -s /bin/zsh' and 'env zsh'"
@@ -155,12 +160,15 @@ if [[ $(uname) = "Darwin" ]]; then
     OSTYPE="OSX"
     if ! exist_cmd brew; then
         # install Homebrew
-        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        /usr/bin/ruby -e "$(curl -fsSL $HOMEBREW_INSTALL_SCRIPT)"
     fi
     INSTALL_PREFIX="brew"
 elif [[ $(cat /etc/issue | head -n 1 | cut -c1-6) == "Ubuntu" ]]; then
     OSTYPE="Ubuntu"
     INSTALL_PREFIX="sudo apt-get install -y"
+elif [[ $(cat /etc/issue | head -n 1 | cut -c1-6) == "Amazon" ]]; then
+    OSTYPE="AmazonLinux"
+    INSTALL_PREFIX="sudo yum install -y"
 else
     echo_fail "Unsupported OS Type!"
     exit 1
