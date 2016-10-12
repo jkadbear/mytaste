@@ -68,7 +68,7 @@ run_sel() {
         echo_info "Please input remote-host-addr:"
         read remote_host
         echo_info "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host"
-        ssh-copy-id -i ~/.ssh/id_rsa.pub $remote_host
+        ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host
     elif [[ $1 == "2" || $1 == "3" ]]; then
         # install git
         if ! exist_cmd git; then
@@ -131,7 +131,8 @@ run_sel() {
             git pull
         fi
         echo_succ "Successfully done"
-        echo_info "Try 'chsh -s /bin/zsh' and 'env zsh'"
+        echo_info "Try 'chsh -s /bin/zsh' or 'sudo chsh username -s /bin/zsh'"
+        echo_info "Then 'env zsh'"
     elif [[ $1 == "4" ]]; then
         if [[ ! -e ~/.mytaste/backup.sh ]]; then
             echo_fail "~/.mytaste/backup.sh does not exists!"
