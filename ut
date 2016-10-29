@@ -6,8 +6,8 @@ YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 CONFIG_GITREPO="https://git.ustclug.org/jkadbear/chief_config.git"
-ZSH_INSTALL_SCRIPT=https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-HOMEBREW_INSTALL_SCRIPT=https://raw.githubusercontent.com/Homebrew/install/master/install
+ZSH_INSTALL_SCRIPT="https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
+HOMEBREW_INSTALL_SCRIPT="https://raw.githubusercontent.com/Homebrew/install/master/install"
 
 # prompt successful message
 echo_succ() {
@@ -128,7 +128,9 @@ run_sel() {
             cd $OLDPWD
         else
             echo_info "~/.chief_config is already existed"
+            cd ~/.chief_config
             git pull
+            cd $OLDPWD
         fi
         echo_succ "Successfully done"
         echo_info "Try 'chsh -s /bin/zsh' or 'sudo chsh username -s /bin/zsh'"
