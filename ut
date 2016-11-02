@@ -5,6 +5,7 @@ GREEN='\033[1;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+UT_GITREPO="https://git.ustclug.org/jkadbear/mytaste.git"
 CONFIG_GITREPO="https://git.ustclug.org/jkadbear/chief_config.git"
 ZSH_INSTALL_SCRIPT="https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
 HOMEBREW_INSTALL_SCRIPT="https://raw.githubusercontent.com/Homebrew/install/master/install"
@@ -128,13 +129,9 @@ run_sel() {
             cd $OLDPWD
         else
             echo_info "~/.chief_config is already existed"
-            if [[ -d ~/.chief_config ]]; then
-                cd ~/.chief_config
-                git pull
-                cd $OLDPWD
-            else
-                echo "No such directory '~/.chief_config'"
-            fi
+            cd ~/.chief_config
+            git pull
+            cd $OLDPWD
         fi
         echo_succ "Successfully done"
         echo_info "Try 'chsh -s /bin/zsh' or 'sudo chsh username -s /bin/zsh'"
@@ -154,11 +151,14 @@ run_sel() {
             cd ~/.mytaste
             echo_info "git pull"
             git pull
-            echo_succ "Update done. Please restart ut."
             cd $OLDPWD
         else
-            echo "No such directory '~/.mytaste'"
+            git clone $UT_GITREPO ~/.mytaste
+            cp ~/.mytaste/ut .
+            echo_info "cloned git repo at '~/.mytaste'"
         fi
+        echo_succ "Update done."
+        echo_info "Please restart ut and make sure that ~/.mytaste is in your \$PATH."
     elif [[ $1 == "q" ]]; then
         exit 0
     else
