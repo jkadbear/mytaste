@@ -128,9 +128,13 @@ run_sel() {
             cd $OLDPWD
         else
             echo_info "~/.chief_config is already existed"
-            cd ~/.chief_config
-            git pull
-            cd $OLDPWD
+            if [[ -d ~/.chief_config ]]; then
+                cd ~/.chief_config
+                git pull
+                cd $OLDPWD
+            else
+                echo "No such directory '~/.chief_config'"
+            fi
         fi
         echo_succ "Successfully done"
         echo_info "Try 'chsh -s /bin/zsh' or 'sudo chsh username -s /bin/zsh'"
@@ -146,11 +150,15 @@ run_sel() {
             zsh ~/.mytaste/backup.sh
         fi
     elif [[ $1 == "5" ]]; then
-        cd ~/.mytaste
-        echo_info "git pull"
-        git pull
-        echo_succ "Update done. Please restart ut."
-        cd $OLDPWD
+        if [[ -d ~/.mytaste ]]; then
+            cd ~/.mytaste
+            echo_info "git pull"
+            git pull
+            echo_succ "Update done. Please restart ut."
+            cd $OLDPWD
+        else
+            echo "No such directory '~/.mytaste'"
+        fi
     elif [[ $1 == "q" ]]; then
         exit 0
     else
