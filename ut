@@ -5,8 +5,8 @@ GREEN='\033[1;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-UT_GITREPO="https://git.ustclug.org/jkadbear/mytaste.git"
-CONFIG_GITREPO="https://git.ustclug.org/jkadbear/chief_config.git"
+UT_GITREPO="https://github.com/jkadbear/mytaste.git"
+CONFIG_GITREPO="https://github.com/jkadbear/chief_config.git"
 ZSH_INSTALL_SCRIPT="https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
 HOMEBREW_INSTALL_SCRIPT="https://raw.githubusercontent.com/Homebrew/install/master/install"
 
