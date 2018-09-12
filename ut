@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Copyright (C) 2017 jkadbear
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 RED='\033[1;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[0;33m'
@@ -7,7 +15,7 @@ NC='\033[0m' # No Color
 
 UT_GITREPO="https://github.com/jkadbear/mytaste.git"
 CONFIG_GITREPO="https://github.com/jkadbear/chief_config.git"
-ZSH_INSTALL_SCRIPT="https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
+OHMYZSH_INSTALL_SCRIPT="https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh"
 HOMEBREW_INSTALL_SCRIPT="https://raw.githubusercontent.com/Homebrew/install/master/install"
 
 # prompt successful message
@@ -42,36 +50,45 @@ prompt_help() {
     echo "3. prepare *nix working environment(on server)"
     echo "4. back-up files"
     echo "5. update ut itself"
+    echo "6. copy ssh keys to massive machines"
     echo -n "INPUT>> "
 }
 
+check_sshcopyid() {
+    if [[ ! -e ~/.ssh/id_rsa ]]; then
+        echo_info "No ssh key found."
+        while true; do
+            read -p "Auto-generate? [Y/n]" yn
+            case $yn in
+                "" | [Yy]* ) ssh-keygen -t rsa -P "" ;;
+                [Nn]* ) echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
+                        echo_info " or \`ssh-keygen -t rsa -b 4096 -C \"your-email\"\`";
+                        exit 0 ;;
+                * )     echo_info "Please answer y or n." ;;
+            esac
+        done
+    fi
+    if [[ "$OSTYPE" == "OSX" ]] && ! exist_cmd ssh-copy-id; then
+        $INSTALL_PREFIX ssh-copy-id
+    fi
+}
+
+# TODO error handle
 run_sel() {
     case $1 in
 
     "1" )
-        if [[ ! -e ~/.ssh/id_rsa ]]; then
-            echo_info "No ssh key detected."
-            while true; do
-                read -p "Auto-generate? [y/n]" yn
-                case $yn in
-                    [Yy]* ) ssh-keygen -t rsa -P ""; break;;
-                    [Nn]* ) echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
-                            echo_info " or \`ssh-keygen -t rsa -b 4096 -C \"your-email\"\`";
-                            exit 0;;
-                    * )     echo_info "Please answer y or n.";;
-                esac
-            done
-        fi
-        if [[ "$OSTYPE" == "OSX" ]] && ! exist_cmd ssh-copy-id; then
-            $INSTALL_PREFIX ssh-copy-id
-        fi
-        echo_info "Please input username(default: localname):"
+        check_sshcopyid
+        echo_info "Please input username(default: `whoami`):"
         read username
         username=${username:-`whoami`}
+        echo_info "Please input port(default: 22):"
+        read port
+        port=${port:-22}
         echo_info "Please input remote-host-addr:"
         read remote_host
-        echo_info "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host"
-        ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host
+        echo_info "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host -p $port"
+        ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host -p $port
         ;;
 
     "2" | "3" )
@@ -99,7 +116,7 @@ run_sel() {
         # install oh-my-zsh
         if [[ ! -d ~/.oh-my-zsh ]]; then
             echo_info "installing zsh..."
-            wget $ZSH_INSTALL_SCRIPT
+            wget $OHMYZSH_INSTALL_SCRIPT
             # do not enter zsh environment instantly
             sed -i.bak '/env zsh/d' install.sh
             sh install.sh
@@ -170,6 +187,36 @@ run_sel() {
         echo_info "Please restart 'ut' and make sure that '~/.mytaste' is in your \$PATH."
         ;;
 
+    "6" )
+        check_sshcopyid
+        echo_info "Please input username(default: `whoami`):"
+        read username
+        username=${username:-`whoami`}
+        echo_info "Please input port(default: 22):"
+        read port
+        port=${port:-22}
+        echo_info "Please input password:"
+        read -s password
+
+        if [[ $# -eq 1 ]]; then
+            echo_info "Please input filename(containing hosts list):"
+            read host_list
+        else
+            host_list=$2
+        fi
+
+        # host file not exists
+        if [[ ! -e $host_list ]]; then
+            echo_fail "no such file '$host_list'"
+            return 1
+        fi
+
+        while read remote_host; do
+            echo_info "ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host -p $port"
+            ssh-copy-id -i ~/.ssh/id_rsa.pub $username@$remote_host -p $port
+        done <$host_list
+        ;;
+
     "q" )
         exit 0
         ;;
@@ -203,7 +250,7 @@ else
 fi
 
 if [[ $# > 0 ]]; then
-    run_sel $1
+    run_sel $1 $2
 else
     while true; do
         prompt_help

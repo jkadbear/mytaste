@@ -5,7 +5,7 @@ Utilities and scripts make daily life happy :).
 
 ## Usage
 
-Run `./ut`, which will output a selection table:
+Run `./ut`, which will print a selection table:
 
 ```reStructuredText
 ==============================================
@@ -19,3 +19,4 @@ INPUT>>
 ```
 
 Then enter your choice, like '3'. Or you can directly run `./ut 3`.
+
