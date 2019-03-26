@@ -60,7 +60,8 @@ check_sshcopyid() {
         while true; do
             read -p "Auto-generate? [Y/n]" yn
             case $yn in
-                "" | [Yy]* ) ssh-keygen -t rsa -P "" ;;
+                "" | [Yy]* ) ssh-keygen -t rsa -P "";
+                             break ;;
                 [Nn]* ) echo_info "Try \`ssh-keygen -t rsa -P \"\"\`";
                         echo_info " or \`ssh-keygen -t rsa -b 4096 -C \"your-email\"\`";
                         exit 0 ;;
