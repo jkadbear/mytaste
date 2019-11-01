@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2017 jkadbear
+# Copyright (C) 2019 jkadbear
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 #
@@ -98,39 +98,39 @@ run_sel() {
             echo_info "installing git..."
             $INSTALL_PREFIX git
         else
-            echo_info "git is already existed"
+            echo_info "git already exists"
         fi
         # install vim
         if  ! exist_cmd vim; then
             echo_info "installing vim..."
             $INSTALL_PREFIX vim
         else
-            echo_info "vim is already existed"
+            echo_info "vim already exists"
         fi
         # install z-shell
         if  ! exist_cmd zsh; then
             echo_info "installing zsh..."
             $INSTALL_PREFIX zsh
         else
-            echo_info "zsh is already existed"
+            echo_info "zsh already exists"
         fi
         # install oh-my-zsh
         if [[ ! -d ~/.oh-my-zsh ]]; then
-            echo_info "installing zsh..."
+            echo_info "installing oh-my-zsh..."
             wget $OHMYZSH_INSTALL_SCRIPT
             # do not enter zsh environment instantly
-            sed -i.bak '/env zsh/d' install.sh
+            # sed -i.bak '/env zsh/d' install.sh
             sh install.sh
-            rm install.sh install.sh.bak
+            rm install.sh #install.sh.bak
         else
-            echo_info "oh-my-zsh is already existed"
+            echo_info "oh-my-zsh already exists"
         fi
         # install tmux
         if  ! exist_cmd tmux; then
             echo_info "installing tmux..."
             $INSTALL_PREFIX tmux
         else
-            echo_info "tmux is already existed"
+            echo_info "tmux already exists"
         fi
         # apply configuration to zsh, vimperator, vim, tmux
         if [[ ! -d ~/.chief_config ]]; then
@@ -151,7 +151,7 @@ run_sel() {
             cp ./tmux.conf ~/.tmux.conf
             cd $OLDPWD
         else
-            echo_info "~/.chief_config is already existed"
+            echo_info "~/.chief_config already exists"
             cd ~/.chief_config
             git pull
             cd $OLDPWD
@@ -242,6 +242,8 @@ else
     case $OSTYPE in
     "Ubuntu" | "Raspbi" )
         INSTALL_PREFIX="sudo apt-get install -y";;
+    "Arch L" )
+        INSTALL_PREFIX="sudo pacman -S --noconfirm";;
     "Amazon" )
         INSTALL_PREFIX="sudo yum install -y";;
     * )
