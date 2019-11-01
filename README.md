@@ -15,6 +15,7 @@ What do you want to do? (ENTER q to exit)
 3. prepare *nix working environment(on server)
 4. back-up files
 5. update ut itself
+6. copy ssh keys to massive machines
 INPUT>>
 ```
 
