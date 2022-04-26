@@ -149,6 +149,7 @@ run_sel() {
             cp ./vimperatorrc ~/.vimperatorrc
             cp ./vimrc ~/.vimrc
             cp ./tmux.conf ~/.tmux.conf
+            cp ./tmux.conf.local ~/.tmux.conf.local
             cd $OLDPWD
         else
             echo_info "~/.chief_config already exists"
